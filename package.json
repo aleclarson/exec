@@ -1,0 +1,15 @@
+{
+  "name": "exec",
+  "version": "1.0.0",
+  "main": "js/src/index",
+  "dependencies": {
+    "io": "aleclarson/io#1.0.0",
+    "type-utils": "aleclarson/type-utils#1.0.0",
+    "q": "aleclarson/q#1.0.0"
+  },
+  "lotus": {
+    "plugins": [
+      "lotus-coffee"
+    ]
+  }
+}
