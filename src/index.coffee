@@ -11,14 +11,15 @@ module.exports = (command, args, options) ->
   if isType args, Object
     options = args
     args = null
+  else options ?= {}
 
-  unless isType args, Array
-    # TODO: Detect escaped spaces.
-    args = command.split " "
-    command = args.shift()
+  # TODO: Detect escaped spaces.
+  argsFromCommand = command.split " "
+  command = argsFromCommand.shift()
 
-  options ?= {}
-  args ?= []
+  if argsFromCommand.length
+    args = argsFromCommand.concat args or []
+  else args ?= []
 
   assertType command, String
   assertType args, Array
