@@ -1,8 +1,10 @@
 
-{ isType, assert, assertType } = require "type-utils"
 { spawnSync } = require "child_process"
 
+assertType = require "assertType"
 syncFs = require "io/sync"
+isType = require "isType"
+assert = require "assert"
 Path = require "path"
 Q = require "q"
 

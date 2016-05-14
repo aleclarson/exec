@@ -1,10 +1,14 @@
-var Path, Q, assert, assertType, isType, ref, spawnSync, syncFs;
-
-ref = require("type-utils"), isType = ref.isType, assert = ref.assert, assertType = ref.assertType;
+var Path, Q, assert, assertType, isType, spawnSync, syncFs;
 
 spawnSync = require("child_process").spawnSync;
 
+assertType = require("assertType");
+
 syncFs = require("io/sync");
+
+isType = require("isType");
+
+assert = require("assert");
 
 Path = require("path");
 
