@@ -1,8 +1,10 @@
-var Path, Q, assert, assertType, isType, spawnSync, syncFs;
+var Path, Promise, assert, assertType, isType, spawnSync, syncFs;
 
 spawnSync = require("child_process").spawnSync;
 
 assertType = require("assertType");
+
+Promise = require("Promise");
 
 syncFs = require("io/sync");
 
@@ -11,8 +13,6 @@ isType = require("isType");
 assert = require("assert");
 
 Path = require("path");
-
-Q = require("q");
 
 module.exports = function(command, args, options) {
   var argsFromCommand;
@@ -47,7 +47,7 @@ module.exports = function(command, args, options) {
     options.cwd = Path.resolve(process.cwd(), options.cwd);
   }
   assert(syncFs.isDir(options.cwd), "'options.cwd' must be a directory!");
-  return Q["try"](function() {
+  return Promise["try"](function() {
     var proc;
     proc = spawnSync(command, args, options);
     if (proc.stderr.length > 0) {

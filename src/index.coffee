@@ -2,11 +2,11 @@
 { spawnSync } = require "child_process"
 
 assertType = require "assertType"
+Promise = require "Promise"
 syncFs = require "io/sync"
 isType = require "isType"
 assert = require "assert"
 Path = require "path"
-Q = require "q"
 
 module.exports = (command, args, options) ->
 
@@ -37,7 +37,7 @@ module.exports = (command, args, options) ->
 
   assert syncFs.isDir(options.cwd), "'options.cwd' must be a directory!"
 
-  Q.try ->
+  return Promise.try ->
 
     proc = spawnSync command, args, options
 
