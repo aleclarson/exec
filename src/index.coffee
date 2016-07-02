@@ -1,6 +1,6 @@
 
-{ spawnSync } = require "child_process"
-
+childProcess = require "child_process"
+assertTypes = require "assertTypes"
 assertType = require "assertType"
 Promise = require "Promise"
 syncFs = require "io/sync"
@@ -8,24 +8,34 @@ isType = require "isType"
 assert = require "assert"
 Path = require "path"
 
-module.exports = (command, args, options) ->
-
+exports.async = (command, args, options) ->
   if isType args, Object
     options = args
     args = null
   else options ?= {}
+  return exec command, args, options
+
+exports.sync = (command, args, options) ->
+  if isType args, Object
+    options = args
+    args = null
+  else options ?= {}
+  options.sync = yes
+  return exec command, args, options
+
+optionTypes =
+  cwd: String.Maybe
+  encoding: String.Maybe
+
+exec = (command, lastArgs, options) ->
 
   # TODO: Detect escaped spaces.
-  argsFromCommand = command.split " "
-  command = argsFromCommand.shift()
-
-  if argsFromCommand.length
-    args = argsFromCommand.concat args or []
-  else args ?= []
+  firstArgs = command.split " "
+  command = firstArgs.shift()
 
   assertType command, String
-  assertType args, Array
-  assertType options, Object
+  assertType lastArgs, Array if lastArgs?
+  assertTypes options, optionTypes
 
   options.cwd ?= process.cwd()
   options.encoding ?= "utf8"
@@ -37,11 +47,36 @@ module.exports = (command, args, options) ->
 
   assert syncFs.isDir(options.cwd), "'options.cwd' must be a directory!"
 
-  return Promise.try ->
+  args = firstArgs
 
-    proc = spawnSync command, args, options
+  if lastArgs and lastArgs.length
+    args = args.concat lastArgs
 
-    if proc.stderr.length > 0
-      throw Error proc.stderr.replace /[\r\n]+$/, ""
+  if args.length
+    command += " " + args.join " "
 
-    return proc.stdout.replace /[\r\n]+$/, ""
+  if options.sync
+
+    proc = childProcess.spawnSync command, options
+
+    if proc.stderr.length is 0
+      return trim proc.stdout
+
+    throw Error trim proc.stderr
+
+  deferred = Promise.defer()
+
+  proc = childProcess.exec command, options, (error, stdout, stderr) ->
+
+    if error
+      return deferred.reject error
+
+    if stderr.length is 0
+      return deferred.resolve trim stdout
+
+    return deferred.reject Error trim stderr
+
+  return deferred.promise
+
+# Trims trailing newlines.
+trim = (string) -> string.replace /[\r\n]+$/, ""
