@@ -3,10 +3,9 @@ childProcess = require "child_process"
 assertTypes = require "assertTypes"
 assertType = require "assertType"
 Promise = require "Promise"
-syncFs = require "io/sync"
 isType = require "isType"
-assert = require "assert"
-Path = require "path"
+path = require "path"
+fs = require "io/sync"
 
 exports.async = (command, args, options) ->
   if isType args, Object
@@ -42,39 +41,58 @@ exec = (command, lastArgs, options) ->
 
   assertType options.cwd, String
 
-  unless Path.isAbsolute options.cwd
-    options.cwd = Path.resolve process.cwd(), options.cwd
+  if not path.isAbsolute options.cwd
+    options.cwd = path.resolve process.cwd(), options.cwd
 
-  assert syncFs.isDir(options.cwd), "'options.cwd' must be a directory!"
+  if not fs.isDir options.cwd
+    throw Error "'options.cwd' must be a directory!"
 
   args = firstArgs
 
   if lastArgs and lastArgs.length
     args = args.concat lastArgs
 
-  if args.length
-    command += " " + args.join " "
+  # if args.length
+  #   command += " " + args.join " "
 
   if options.sync
+    spawnSync command, args, options
+  else spawnAsync command, args, options
 
-    proc = childProcess.spawnSync command, options
+spawnSync = (command, args, options) ->
 
-    if proc.stderr.length is 0
-      return trim proc.stdout
+  proc = childProcess.spawnSync command, args, options
 
-    throw Error trim proc.stderr
+  if proc.error
+    throw proc.error
+
+  if proc.stderr.length is 0
+    return trim proc.stdout
+
+  throw Error trim proc.stderr
+
+spawnAsync = (command, args, options) ->
 
   deferred = Promise.defer()
 
-  proc = childProcess.exec command, options, (error, stdout, stderr) ->
+  stdout = []
+  stderr = []
 
-    if error
-      return deferred.reject error
+  proc = childProcess.spawn command, args, options
 
-    if stderr.length is 0
-      return deferred.resolve trim stdout
+  proc.on "error", (error) ->
+    deferred.reject error
 
-    return deferred.reject Error trim stderr
+  proc.stdout.on "data", (data) ->
+    stdout.push data
+
+  proc.stderr.on "data", (data) ->
+    stderr.push data
+
+  proc.on "close", (code) ->
+    if stderr.length
+    then deferred.reject Error trim stderr.join ""
+    else deferred.resolve trim stdout.join ""
 
   return deferred.promise
 
