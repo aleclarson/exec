@@ -39,13 +39,14 @@ exec = (command, lastArgs, options) ->
   options.cwd ?= process.cwd()
   options.encoding ?= "utf8"
 
-  assertType options.cwd, String
+  if not options.cwd
+    options.cwd = process.cwd()
 
-  if not path.isAbsolute options.cwd
-    options.cwd = path.resolve process.cwd(), options.cwd
+  else if not path.isAbsolute options.cwd
+    options.cwd = path.resolve options.cwd
 
   if not fs.isDir options.cwd
-    throw Error "'options.cwd' must be a directory!"
+    throw Error "'options.cwd' must be a directory:\n  #{options.cwd}"
 
   args = firstArgs
 
