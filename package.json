@@ -10,11 +10,11 @@
     "postinstall": "npm run build"
   },
   "dependencies": {
-    "Promise": "aleclarson/Promise#2.0.0",
-    "assertType": "aleclarson/assertType#2.0.0",
-    "assertTypes": "aleclarson/assertTypes#2.0.0",
-    "io": "aleclarson/io#2.1.0",
-    "isType": "aleclarson/isType#1.0.0"
+    "Promise": "aleclarson/Promise#2.2.1",
+    "assertType": "aleclarson/assertType#2.0.1",
+    "assertTypes": "aleclarson/assertTypes#2.0.1",
+    "fsx": "aleclarson/fsx#1.2.0",
+    "isType": "aleclarson/isType#1.0.1"
   },
   "implicitDependencies": [
     "child_process",

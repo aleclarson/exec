@@ -5,7 +5,7 @@ assertType = require "assertType"
 Promise = require "Promise"
 isType = require "isType"
 path = require "path"
-fs = require "io/sync"
+fs = require "fsx"
 
 exports.async = (command, args, options) ->
   if isType args, Object
