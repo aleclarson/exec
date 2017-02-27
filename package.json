@@ -1,0 +1,12 @@
+{
+  "name": "exec",
+  "version": "1.0.1",
+  "main": "js/exec",
+  "dependencies": {
+    "Promise": "aleclarson/Promise#2.2.1",
+    "assertType": "aleclarson/assertType#2.0.1",
+    "assertTypes": "aleclarson/assertTypes#2.0.1",
+    "fsx": "aleclarson/fsx#1.2.0",
+    "isType": "aleclarson/isType#1.0.1"
+  }
+}
