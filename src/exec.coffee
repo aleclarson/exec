@@ -9,6 +9,7 @@ fs = require "fsx"
 optionTypes =
   cwd: "string?"
   encoding: "string?"
+  listener: "function?"
 
 execAsync = (command, args, options) ->
   assertValid command, "string"
@@ -83,26 +84,26 @@ spawnSync = (command, args, options) ->
   throw Error trim proc.stderr
 
 spawnAsync = (command, args, options) ->
-
-  deferred = Promise.defer()
-
-  stdout = []
-  stderr = []
+  {promise, resolve, reject} = Promise.defer()
 
   proc = childProcess.spawn command, args, options
 
-  proc.on "error", (error) ->
-    deferred.reject error
+  if listener = options.listener
+    proc.stdout.on "data", (data) -> listener null, data
+    proc.stderr.on "data", listener
+  else
+    stdout = []
+    stderr = []
+    proc.stdout.on "data", (data) -> stdout.push data
+    proc.stderr.on "data", (data) -> stderr.push data
 
-  proc.stdout.on "data", (data) ->
-    stdout.push data
-
-  proc.stderr.on "data", (data) ->
-    stderr.push data
-
+  proc.on "error", reject
   proc.on "close", (code) ->
-    if stderr.length
-    then deferred.reject Error trim stderr.join ""
-    else deferred.resolve trim stdout.join ""
+    return unless promise.isPending
+    return resolve() if listener
 
-  return deferred.promise
+    if stderr.length
+    then reject Error trim stderr.join ""
+    else resolve trim stdout.join ""
+
+  return promise
