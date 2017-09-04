@@ -1,43 +1,54 @@
+# TODO: Detect escaped spaces in the `command` argument.
 
 childProcess = require "child_process"
-assertTypes = require "assertTypes"
-assertType = require "assertType"
+assertValid = require "assertValid"
 Promise = require "Promise"
-isType = require "isType"
 path = require "path"
 fs = require "fsx"
 
-exports.async = (command, args, options) ->
-  if isType args, Object
-    options = args
-    args = null
-  else options ?= {}
-  return exec command, args, options
-
-exports.sync = (command, args, options) ->
-  if isType args, Object
-    options = args
-    args = null
-  else options ?= {}
-  options.sync = yes
-  return exec command, args, options
-
 optionTypes =
-  cwd: String.Maybe
-  encoding: String.Maybe
+  cwd: "string?"
+  encoding: "string?"
+
+execAsync = (command, args, options) ->
+  assertValid command, "string"
+
+  if not Array.isArray args
+    options = args
+    args = []
+
+  assertValid args, "array?"
+  assertValid options ?= {}, optionTypes
+  options.sync = false
+  return exec command, args, options
+
+execSync = (command, args, options) ->
+  assertValid command, "string"
+
+  if not Array.isArray args
+    options = args
+    args = []
+
+  assertValid args, "array?"
+  assertValid options ?= {}, optionTypes
+  options.sync = true
+  return exec command, args, options
+
+module.exports = execAsync
+module.exports.async = execAsync
+module.exports.sync = execSync
+
+#
+# Helpers
+#
+
+trim = (string) ->
+  return string.replace /[\r\n]+$/, ""
 
 exec = (command, lastArgs, options) ->
 
-  # TODO: Detect escaped spaces.
   firstArgs = command.split " "
   command = firstArgs.shift()
-
-  assertType command, String
-  assertType lastArgs, Array if lastArgs?
-  assertTypes options, optionTypes
-
-  options.cwd ?= process.cwd()
-  options.encoding ?= "utf8"
 
   if not options.cwd
     options.cwd = process.cwd()
@@ -48,16 +59,15 @@ exec = (command, lastArgs, options) ->
   if not fs.isDir options.cwd
     throw Error "'options.cwd' must be a directory:\n  #{options.cwd}"
 
-  args = firstArgs
+  args =
+    if lastArgs.length
+    then firstArgs.concat lastArgs
+    else firstArgs
 
-  if lastArgs and lastArgs.length
-    args = args.concat lastArgs
-
-  # if args.length
-  #   command += " " + args.join " "
+  options.encoding ?= "utf8"
 
   if options.sync
-    spawnSync command, args, options
+  then spawnSync command, args, options
   else spawnAsync command, args, options
 
 spawnSync = (command, args, options) ->
@@ -96,6 +106,3 @@ spawnAsync = (command, args, options) ->
     else deferred.resolve trim stdout.join ""
 
   return deferred.promise
-
-# Trims trailing newlines.
-trim = (string) -> string.replace /[\r\n]+$/, ""
