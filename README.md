@@ -1,24 +1,35 @@
+# exec v1.0.3
 
-# exec v1.0.3 ![stable](https://img.shields.io/badge/stability-stable-4EBA0F.svg?style=flat)
+Easy shell execution
 
-```coffee
-#
-# Synchronous version
-#
-try stdout = exec.sync "npm root -g"
-catch error
-  console.log error.stack
+```js
+const exec = require('exec');
 
-#
-# Asynchronous version
-#
-exec.async "git status --porcelain"
+// Sync version
+try {
+  const stdout = exec.sync('npm root -g');
+  console.log(stdout);
+} catch(stderr) {
+  console.error(stderr);
+}
 
-.then (stdout) ->
-  console.log stdout
+// Async version
+exec('git status --porcelain')
+  .then(stdout => {
+    console.log(stdout);
+  }, stderr => {
+    console.error(stderr);
+  });
 
-.fail (error) ->
-  console.log error.stack
+// Child process options
+const files = await exec('ls -a', {
+  cwd: 'path/to/dir'
+});
+
+// Additional arguments
+const status = await exec('git status', [
+  porcelain ? '--porcelain' : null, // null and undefined values are filtered out
+]);
 ```
 
-**TODO:** Write tests?!
+Available options are described [here](https://nodejs.org/api/child_process.html#child_process_child_process_exec_command_options_callback).
