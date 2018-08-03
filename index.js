@@ -1,30 +1,13 @@
 const {spawn, spawnSync} = require('child_process');
 const TypeError = require('type-error');
-const path = require('path');
 const fs = require('fs');
 
 function execAsync(cmd, args, opts) {
-  if (typeof cmd !== 'string') {
-    throw TypeError(String, cmd);
-  }
-  if (!Array.isArray(args)) {
-    opts = args, args = [];
-  }
-  opts || (opts = {});
-  opts.sync = false;
-  return exec(cmd, args, opts);
+  return exec(false, cmd, args, opts);
 }
 
 function execSync(cmd, args, opts) {
-  if (typeof cmd !== 'string') {
-    throw TypeError(String, cmd);
-  }
-  if (!Array.isArray(args)) {
-    opts = args, args = [];
-  }
-  opts || (opts = {});
-  opts.sync = true;
-  return exec(cmd, args, opts);
+  return exec(true, cmd, args, opts);
 }
 
 module.exports = execAsync;
@@ -47,21 +30,39 @@ function isDir(dir) {
   } catch(e) { return false; }
 }
 
-function exec(cmd, args, opts) {
+function exec(sync, cmd, ...args) {
+  if (typeof cmd !== 'string') {
+    throw TypeError(String, cmd);
+  }
+
+  // TODO: support escaped spaces?
+  cmd = cmd.split(' ');
+
+  const opts = {};
+  args.forEach(arg => {
+    if (arg == null) return;
+    if (Array.isArray(arg)) {
+      arg.forEach(arg => arg == null || cmd.push(arg));
+    } else if (!sync && typeof arg == 'function') {
+      opts.listener = arg;
+    } else if (arg.constructor == Object) {
+      Object.assign(opts, arg);
+    } else {
+      throw TypeError('an array, function, or object', arg);
+    }
+  });
+
   if (opts.cwd && !isDir(opts.cwd)) {
     const error = Error('Directory does not exist: ' + opts.cwd);
     error.code = 'ENOTDIR';
     throw error;
   }
 
-  args = cmd.split(' ').concat(args.filter(arg => arg != null));
-  cmd  = args.shift();
-
   // Default to utf8 string.
   opts.encoding || (opts.encoding = 'utf8');
 
-  if (opts.sync) {
-    const proc = spawnSync(cmd, args, opts);
+  if (sync) {
+    const proc = spawnSync(cmd.shift(), cmd, opts);
     if (proc.error) {
       if (proc.error.code == 'ENOENT') {
         proc.error.message = 'Unknown command: ' + cmd;
@@ -81,7 +82,7 @@ function exec(cmd, args, opts) {
     // Capture a useful stack trace.
     const error = new Error();
     return new Promise((resolve, reject) => {
-      const proc = spawn(cmd, args, opts);
+      const proc = spawn(cmd.shift(), cmd, opts);
 
       let failed = false;
       proc.on('error', e => {
