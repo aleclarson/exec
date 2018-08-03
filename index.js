@@ -96,8 +96,8 @@ function exec(sync, cmd, ...args) {
       });
 
       if (opts.listener) {
-        proc.stdout.on('data', data => listener(null, data));
-        proc.stderr.on('data', listener);
+        proc.stdout.on('data', data => opts.listener(null, data));
+        proc.stderr.on('data', opts.listener);
         proc.on('close', code => {
           if (failed) return;
           if (code == 0) return resolve();
