@@ -1,4 +1,4 @@
-# @aleclarson/exec v1.2.0
+# @aleclarson/exec v1.2.1
 
 Easy shell execution
 
