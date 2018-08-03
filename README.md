@@ -1,4 +1,4 @@
-# exec v1.2.0
+# exec v1.2.1
 
 Easy shell execution
 
