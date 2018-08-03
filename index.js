@@ -43,14 +43,14 @@ function exec(sync, cmd, ...args) {
   const opts = {};
   args.forEach(arg => {
     if (arg == null) return;
-    if (Array.isArray(arg)) {
+    if (arg.constructor == Object) {
+      Object.assign(opts, arg);
+    } else if (Array.isArray(arg)) {
       arg.forEach(arg => arg == null || cmd.push(arg));
     } else if (!sync && typeof arg == 'function') {
       opts.listener = arg;
-    } else if (arg.constructor == Object) {
-      Object.assign(opts, arg);
     } else {
-      throw TypeError('an array, function, or object', arg);
+      cmd.push(String(arg));
     }
   });
 
