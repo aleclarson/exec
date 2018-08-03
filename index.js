@@ -2,12 +2,12 @@ const {spawn, spawnSync} = require('child_process');
 const TypeError = require('type-error');
 const fs = require('fs');
 
-function execAsync(cmd, args, opts) {
-  return exec(false, cmd, args, opts);
+function execAsync(...args) {
+  return exec(false, ...args);
 }
 
-function execSync(cmd, args, opts) {
-  return exec(true, cmd, args, opts);
+function execSync(...args) {
+  return exec(true, ...args);
 }
 
 module.exports = execAsync;
