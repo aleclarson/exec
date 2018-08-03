@@ -1,6 +1,6 @@
 {
   "name": "@aleclarson/exec",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "license": "MIT",
   "repository": "aleclarson/exec",
   "description": "Easy shell execution",
