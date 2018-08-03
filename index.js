@@ -97,7 +97,11 @@ function exec(sync, cmd, ...args) {
 
       if (opts.listener) {
         proc.stdout.on('data', data => opts.listener(null, data));
+        proc.stdout.setEncoding(opts.encoding);
+
         proc.stderr.on('data', opts.listener);
+        proc.stderr.setEncoding(opts.encoding);
+
         proc.on('close', code => {
           if (failed) return;
           if (code == 0) return resolve();
