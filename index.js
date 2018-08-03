@@ -21,7 +21,9 @@ module.exports.async = execAsync;
 const trailingNewlines = /[\r\n]+$/
 
 function stripTrailingNewlines(str) {
-  return str.replace(trailingNewlines, '');
+  if (typeof str == 'string') {
+    return str.replace(trailingNewlines, '');
+  } else return str;
 }
 
 function isDir(dir) {
