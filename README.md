@@ -33,3 +33,6 @@ const status = await exec('git status', [
 ```
 
 Available options are described [here](https://nodejs.org/api/child_process.html#child_process_child_process_exec_command_options_callback).
+
+### Notes
+- An error is thrown (or the promise is rejected) whenever the exit code of the child process is non-zero.
