@@ -71,14 +71,16 @@ function exec(sync, cmd, ...args) {
       }
       throw proc.error;
     }
-    if (proc.status == 0) {
-      return stripTrailingNewlines(proc.stdout);
+    if (proc.status != 0) {
+      const msg = proc.stderr
+        ? stripTrailingNewlines(proc.stderr)
+        : 'Closed with non-zero exit code: ' + proc.status;
+
+      const error = new Error(msg);
+      error.exitCode = proc.status;
+      throw error;
     }
-    if (proc.stderr.length) {
-      throw new Error(stripTrailingNewlines(proc.stderr));
-    } else {
-      throw new Error('Closed with non-zero exit code: ' + proc.status);
-    }
+    return stripTrailingNewlines(proc.stdout);
   }
   else {
     // Capture a useful stack trace.
@@ -108,11 +110,12 @@ function exec(sync, cmd, ...args) {
           if (failed) return;
           if (code == 0) return resolve();
           error.message = 'Closed with non-zero exit code: ' + code;
+          error.exitCode = code;
           reject(error);
         });
       }
       else {
-        var stdout = [], stderr = [];
+        const stdout = [], stderr = [];
         proc.stdout.on('data', data => stdout.push(data));
         proc.stderr.on('data', data => stderr.push(data));
         proc.on('close', code => {
@@ -120,7 +123,11 @@ function exec(sync, cmd, ...args) {
           if (code == 0) {
             resolve(stripTrailingNewlines(stdout.join('')));
           } else {
-            error.message = stripTrailingNewlines(stderr.join(''));
+            error.message = stderr.length
+              ? stripTrailingNewlines(stderr.join(''))
+              : 'Closed with non-zero exit code: ' + code;
+
+            error.exitCode = code;
             reject(error);
           }
         });
