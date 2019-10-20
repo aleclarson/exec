@@ -46,7 +46,14 @@ function exec(sync, cmd, ...args) {
     if (arg.constructor == Object) {
       Object.assign(opts, arg);
     } else if (Array.isArray(arg)) {
-      arg.forEach(arg => arg == null || cmd.push(arg));
+      arg.forEach(arg => {
+        if (arg == null) return
+        if (Array.isArray(arg)) {
+          arg.forEach(arg => cmd.push(String(arg)))
+        } else {
+          cmd.push(String(arg))
+        }
+      });
     } else if (!sync && typeof arg == 'function') {
       opts.listener = arg;
     } else {
