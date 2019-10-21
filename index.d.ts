@@ -1,11 +1,11 @@
 import { SpawnOptions } from "child_process"
 
 /** Execute a shell command asynchronously */
-declare const exec: Exec & {
+declare const exec: exec.Exec & {
   /** Execute a shell command synchronously */
-  sync: SyncExec
+  sync: exec.SyncExec
   /** Execute a shell command asynchronously */
-  async: Exec
+  async: exec.Exec
 }
 
 declare namespace exec {
