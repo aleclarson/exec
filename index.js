@@ -123,8 +123,12 @@ function exec(sync, cmd, ...args) {
       }
       else {
         const stdout = [], stderr = [];
-        proc.stdout.on('data', data => stdout.push(data));
-        proc.stderr.on('data', data => stderr.push(data));
+        if (proc.stdout) {
+          proc.stdout.on('data', data => stdout.push(data));
+        }
+        if (proc.stderr) {
+          proc.stderr.on('data', data => stderr.push(data));
+        }
         proc.on('close', code => {
           if (failed) return;
           if (code == 0) {
