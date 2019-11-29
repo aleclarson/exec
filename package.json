@@ -4,6 +4,10 @@
   "license": "MIT",
   "repository": "aleclarson/exec",
   "description": "Easy shell execution",
+  "files": [
+    "index.js",
+    "index.d.ts"
+  ],
   "dependencies": {
     "shell-quote": "^1.7.2",
     "type-error": "^1.0.2"
