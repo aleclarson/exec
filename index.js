@@ -40,7 +40,7 @@ function exec(sync, cmd, ...args) {
     throw TypeError(String, cmd)
   }
 
-  cmd = quote.parse(cmd)
+  cmd = quotes.parse(cmd)
 
   const opts = {}
   args.forEach(arg => {
