@@ -1,5 +1,6 @@
 const { spawn, spawnSync } = require('child_process')
 const TypeError = require('type-error')
+const quotes = require('shell-quote')
 const fs = require('fs')
 
 function execAsync(...args) {
@@ -39,8 +40,7 @@ function exec(sync, cmd, ...args) {
     throw TypeError(String, cmd)
   }
 
-  // TODO: support escaped spaces?
-  cmd = cmd.split(' ')
+  cmd = quote.parse(cmd)
 
   const opts = {}
   args.forEach(arg => {
