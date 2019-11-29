@@ -8,6 +8,7 @@
     "type-error": "^1.0.2"
   },
   "devDependencies": {
-    "@types/node": "^12.11.2"
+    "@types/node": "^12.11.2",
+    "prettier": "^1.19.1"
   }
 }
