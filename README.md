@@ -1,9 +1,9 @@
-# exec v1.6.1
+# @cush/exec
 
 Easy shell execution
 
 ```js
-const exec = require('exec');
+const exec = require('@cush/exec');
 
 // Sync version
 try {
