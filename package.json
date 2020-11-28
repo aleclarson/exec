@@ -1,6 +1,6 @@
 {
   "name": "@cush/exec",
-  "version": "1.6.2",
+  "version": "1.6.3",
   "license": "MIT",
   "repository": "aleclarson/exec",
   "description": "Easy shell execution",
