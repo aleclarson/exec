@@ -107,12 +107,16 @@ function exec(sync, cmd, ...args) {
       })
 
       if (opts.listener) {
-        proc.stdout.on('data', data => opts.listener(null, data))
-        proc.stdout.setEncoding(opts.encoding)
-
-        proc.stderr.on('data', opts.listener)
-        proc.stderr.setEncoding(opts.encoding)
-
+        if (proc.stdout) {
+          proc.stdout.on('data', data => opts.listener(null, data))
+          proc.stdout.setEncoding(opts.encoding)
+        } else if (!proc.stderr) {
+          throw Error('Cannot listen when both stdout and stderr are missing')
+        }
+        if (proc.stderr) {
+          proc.stderr.on('data', opts.listener)
+          proc.stderr.setEncoding(opts.encoding)
+        }
         proc.on('close', code => {
           if (failed) return
           if (code == 0) return resolve()
