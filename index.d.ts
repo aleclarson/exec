@@ -1,4 +1,8 @@
-import { SpawnOptions, SpawnSyncOptions } from "child_process"
+import {
+  ChildProcessWithoutNullStreams as ChildProcess,
+  SpawnOptions,
+  SpawnSyncOptions,
+} from 'child_process'
 
 /** Execute a shell command asynchronously */
 declare const exec: exec.Exec & {
@@ -9,7 +13,9 @@ declare const exec: exec.Exec & {
 }
 
 declare namespace exec {
-  export type Exec = (cmd: string, ...args: Args) => Promise<string>
+  export interface Exec {
+    (cmd: string, ...args: Args): ChildProcess & Promise<string>
+  }
   export type Args = Array<Argv | SpawnOptions | Listener>
 
   // Synchronous version

@@ -93,60 +93,71 @@ function exec(sync, cmd, ...args) {
   } else {
     // Capture a useful stack trace.
     const error = new Error()
-    return new Promise((resolve, reject) => {
-      const proc = spawn(cmd.shift(), cmd, opts)
+    const proc = spawn(cmd.shift(), cmd, opts)
+    return bindPromise(proc, execAsync(proc, cmd, opts, error))
+  }
+}
 
-      let failed = false
-      proc.on('error', e => {
-        Object.assign(error, e)
-        error.message =
-          e.code == 'ENOENT' ? 'Unknown command: ' + cmd : e.message
+function bindPromise(obj, promise) {
+  obj.then = promise.then.bind(promise)
+  obj.catch = promise.catch.bind(promise)
+  if (promise.finally) {
+    obj.finally = promise.finally.bind(promise)
+  }
+  return obj
+}
 
-        failed = true
+function execAsync(proc, cmd, opts, error) {
+  return new Promise((resolve, reject) => {
+    let failed = false
+    proc.on('error', e => {
+      Object.assign(error, e)
+      error.message = e.code == 'ENOENT' ? 'Unknown command: ' + cmd : e.message
+
+      failed = true
+      reject(error)
+    })
+
+    if (opts.listener) {
+      if (proc.stdout) {
+        proc.stdout.on('data', data => opts.listener(null, data))
+        proc.stdout.setEncoding(opts.encoding)
+      } else if (!proc.stderr) {
+        throw Error('Cannot listen when both stdout and stderr are missing')
+      }
+      if (proc.stderr) {
+        proc.stderr.on('data', opts.listener)
+        proc.stderr.setEncoding(opts.encoding)
+      }
+      proc.on('close', code => {
+        if (failed) return
+        if (code == 0) return resolve()
+        error.message = 'Closed with non-zero exit code: ' + code
+        error.exitCode = code
         reject(error)
       })
+    } else {
+      const stdout = [],
+        stderr = []
+      if (proc.stdout) {
+        proc.stdout.on('data', data => stdout.push(data))
+      }
+      if (proc.stderr) {
+        proc.stderr.on('data', data => stderr.push(data))
+      }
+      proc.on('close', code => {
+        if (failed) return
+        if (code == 0) {
+          resolve(stripTrailingNewlines(stdout.join('')))
+        } else {
+          error.message = stderr.length
+            ? stripTrailingNewlines(stderr.join(''))
+            : 'Closed with non-zero exit code: ' + code
 
-      if (opts.listener) {
-        if (proc.stdout) {
-          proc.stdout.on('data', data => opts.listener(null, data))
-          proc.stdout.setEncoding(opts.encoding)
-        } else if (!proc.stderr) {
-          throw Error('Cannot listen when both stdout and stderr are missing')
-        }
-        if (proc.stderr) {
-          proc.stderr.on('data', opts.listener)
-          proc.stderr.setEncoding(opts.encoding)
-        }
-        proc.on('close', code => {
-          if (failed) return
-          if (code == 0) return resolve()
-          error.message = 'Closed with non-zero exit code: ' + code
           error.exitCode = code
           reject(error)
-        })
-      } else {
-        const stdout = [],
-          stderr = []
-        if (proc.stdout) {
-          proc.stdout.on('data', data => stdout.push(data))
         }
-        if (proc.stderr) {
-          proc.stderr.on('data', data => stderr.push(data))
-        }
-        proc.on('close', code => {
-          if (failed) return
-          if (code == 0) {
-            resolve(stripTrailingNewlines(stdout.join('')))
-          } else {
-            error.message = stderr.length
-              ? stripTrailingNewlines(stderr.join(''))
-              : 'Closed with non-zero exit code: ' + code
-
-            error.exitCode = code
-            reject(error)
-          }
-        })
-      }
-    })
-  }
+      })
+    }
+  })
 }
