@@ -73,7 +73,7 @@ function exec(sync, cmd, ...args) {
   opts.encoding || (opts.encoding = 'utf8')
 
   if (sync) {
-    const proc = spawnSync(cmd.shift(), cmd, opts)
+    const proc = spawnSync(cmd[0], cmd.slice(1), opts)
     if (proc.error) {
       if (proc.error.code == 'ENOENT') {
         proc.error.message = 'Unknown command: ' + cmd
@@ -93,7 +93,7 @@ function exec(sync, cmd, ...args) {
   } else {
     // Capture a useful stack trace.
     const error = new Error()
-    const proc = spawn(cmd.shift(), cmd, opts)
+    const proc = spawn(cmd[0], cmd.slice(1), opts)
     return bindPromise(proc, execAsync(proc, cmd, opts, error))
   }
 }
