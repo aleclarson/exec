@@ -94,7 +94,7 @@ function exec(sync, cmd, ...args) {
     // Capture a useful stack trace.
     const error = new Error()
     const proc = spawn(cmd[0], cmd.slice(1), opts)
-    return bindPromise(proc, execAsync(proc, cmd, opts, error))
+    return bindPromise(proc, setupAsync(proc, cmd, opts, error))
   }
 }
 
@@ -107,7 +107,7 @@ function bindPromise(obj, promise) {
   return obj
 }
 
-function execAsync(proc, cmd, opts, error) {
+function setupAsync(proc, cmd, opts, error) {
   return new Promise((resolve, reject) => {
     let failed = false
     proc.on('error', e => {
