@@ -1,15 +1,20 @@
 dependencies:
+  p-stream: 1.0.3
   shell-quote: 1.7.2
   type-error: 1.0.3
 devDependencies:
   '@types/node': 12.12.14
   prettier: 1.19.1
-lockfileVersion: 5.1
+lockfileVersion: 5.2
 packages:
   /@types/node/12.12.14:
     dev: true
     resolution:
       integrity: sha512-u/SJDyXwuihpwjXy7hOOghagLEV1KdAST6syfnOk6QZAMzZuWZqXy5aYYZbh8Jdpd4escVFP0MvftHNDb9pruA==
+  /p-stream/1.0.3:
+    dev: false
+    resolution:
+      integrity: sha1-v581yr/GrDtCHWJGWmSbproTKZc=
   /prettier/1.19.1:
     dev: true
     engines:
@@ -27,6 +32,7 @@ packages:
       integrity: sha512-hlNA4NwwjtL9clb8nv+x/5C45uzxND+N+h+/y3z2dYdubGSmdtNtJjHVH4E68ZHR98Bkav4ACf1lmTZepc/4sg==
 specifiers:
   '@types/node': ^12.11.2
+  p-stream: ^1.0.3
   prettier: ^1.19.1
   shell-quote: ^1.7.2
   type-error: ^1.0.2
