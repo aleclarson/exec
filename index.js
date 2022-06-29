@@ -80,7 +80,7 @@ function exec(sync, cmd, ...args) {
       }
       throw proc.error
     }
-    if (proc.status != 0) {
+    if (isFailure(proc, opts)) {
       const msg = proc.stderr
         ? stripTrailingNewlines(proc.stderr)
         : 'Closed with non-zero exit code: ' + proc.status
@@ -109,12 +109,12 @@ function bindPromise(obj, promise) {
 
 function setupAsync(proc, cmd, opts, error) {
   return new Promise((resolve, reject) => {
-    let failed = false
+    let rejected = false
     proc.on('error', e => {
       Object.assign(error, e)
       error.message = e.code == 'ENOENT' ? 'Unknown command: ' + cmd : e.message
 
-      failed = true
+      rejected = true
       reject(error)
     })
 
@@ -129,12 +129,15 @@ function setupAsync(proc, cmd, opts, error) {
         proc.stderr.on('data', opts.listener)
         proc.stderr.setEncoding(opts.encoding)
       }
-      proc.on('close', code => {
-        if (failed) return
-        if (code == 0) return resolve()
-        error.message = 'Closed with non-zero exit code: ' + code
-        error.exitCode = code
-        reject(error)
+      proc.on('close', status => {
+        if (rejected) return
+        if (isFailure({ status }, opts)) {
+          error.message = 'Closed with non-zero exit code: ' + status
+          error.exitCode = status
+          reject(error)
+        } else {
+          resolve()
+        }
       })
     } else {
       const stdout = [],
@@ -145,19 +148,38 @@ function setupAsync(proc, cmd, opts, error) {
       if (proc.stderr) {
         proc.stderr.on('data', data => stderr.push(data))
       }
-      proc.on('close', code => {
-        if (failed) return
-        if (code == 0) {
-          resolve(stripTrailingNewlines(stdout.join('')))
-        } else {
+      proc.on('close', status => {
+        if (rejected) return
+        if (isFailure({ status, stdout, stderr }, opts)) {
           error.message = stderr.length
             ? stripTrailingNewlines(stderr.join(''))
-            : 'Closed with non-zero exit code: ' + code
+            : 'Closed with non-zero exit code: ' + status
 
-          error.exitCode = code
+          error.exitCode = status
           reject(error)
+        } else {
+          resolve(stripTrailingNewlines(stdout.join('')))
         }
       })
     }
   })
+}
+
+function isFailure(proc, opts) {
+  if (proc.status == 0 || opts.noThrow === true) {
+    return false
+  }
+  if (!opts.noThrow) {
+    return true
+  }
+
+  let output =
+    (proc.stderr && proc.stderr.length ? proc.stderr : proc.stdout) || ''
+
+  if (Array.isArray(output)) {
+    output = output.join('')
+  } else {
+    output = output.toString('utf8')
+  }
+  return !opts.noThrow.test(output)
 }
