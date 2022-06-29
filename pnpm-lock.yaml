@@ -1,32 +1,35 @@
-dependencies:
-  shell-quote: 1.7.2
-  type-error: 1.0.3
-devDependencies:
-  '@types/node': 12.12.14
-  prettier: 1.19.1
-lockfileVersion: 5.1
-packages:
-  /@types/node/12.12.14:
-    dev: true
-    resolution:
-      integrity: sha512-u/SJDyXwuihpwjXy7hOOghagLEV1KdAST6syfnOk6QZAMzZuWZqXy5aYYZbh8Jdpd4escVFP0MvftHNDb9pruA==
-  /prettier/1.19.1:
-    dev: true
-    engines:
-      node: '>=4'
-    hasBin: true
-    resolution:
-      integrity: sha512-s7PoyDv/II1ObgQunCbB9PdLmUcBZcnWOcxDh7O0N/UwDEsHyqkW+Qh28jW+mVuCdx7gLB0BotYI1Y6uI9iyew==
-  /shell-quote/1.7.2:
-    dev: false
-    resolution:
-      integrity: sha512-mRz/m/JVscCrkMyPqHc/bczi3OQHkLTqXHEFu0zDhK/qfv3UcOA4SVmRCLmos4bhjr9ekVQubj/R7waKapmiQg==
-  /type-error/1.0.3:
-    dev: false
-    resolution:
-      integrity: sha512-hlNA4NwwjtL9clb8nv+x/5C45uzxND+N+h+/y3z2dYdubGSmdtNtJjHVH4E68ZHR98Bkav4ACf1lmTZepc/4sg==
+lockfileVersion: 5.3
+
 specifiers:
   '@types/node': ^12.11.2
   prettier: ^1.19.1
   shell-quote: ^1.7.2
   type-error: ^1.0.2
+
+dependencies:
+  shell-quote: 1.7.2
+  type-error: 1.0.3
+
+devDependencies:
+  '@types/node': 12.12.14
+  prettier: 1.19.1
+
+packages:
+
+  /@types/node/12.12.14:
+    resolution: {integrity: sha512-u/SJDyXwuihpwjXy7hOOghagLEV1KdAST6syfnOk6QZAMzZuWZqXy5aYYZbh8Jdpd4escVFP0MvftHNDb9pruA==}
+    dev: true
+
+  /prettier/1.19.1:
+    resolution: {integrity: sha512-s7PoyDv/II1ObgQunCbB9PdLmUcBZcnWOcxDh7O0N/UwDEsHyqkW+Qh28jW+mVuCdx7gLB0BotYI1Y6uI9iyew==}
+    engines: {node: '>=4'}
+    hasBin: true
+    dev: true
+
+  /shell-quote/1.7.2:
+    resolution: {integrity: sha512-mRz/m/JVscCrkMyPqHc/bczi3OQHkLTqXHEFu0zDhK/qfv3UcOA4SVmRCLmos4bhjr9ekVQubj/R7waKapmiQg==}
+    dev: false
+
+  /type-error/1.0.3:
+    resolution: {integrity: sha512-hlNA4NwwjtL9clb8nv+x/5C45uzxND+N+h+/y3z2dYdubGSmdtNtJjHVH4E68ZHR98Bkav4ACf1lmTZepc/4sg==}
+    dev: false
